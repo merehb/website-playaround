@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { KpiCard } from "@/components/KpiCard";
+import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { FilterBar } from "@/components/FilterBar";
 import { MiniBars, MiniPie, PieDatum } from "@/components/Charts";
 
@@ -37,15 +38,12 @@ export default function ReportingPage() {
       <FilterBar />
 
       <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {kpis.map((k) => (
+        {kpis.map((k, i) => (
           <KpiCard
             key={k.label}
             label={k.label}
-            value={
-              k.label === "Impressions"
-                ? k.value.toLocaleString()
-                : new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(k.value)
-            }
+            value={<AnimatedNumber value={k.value} />}
+            sparklineValues={[60 + i * 2, 62, 61, 64, 65, 63, 66, 68, 67, 70]}
           />
         ))}
       </section>

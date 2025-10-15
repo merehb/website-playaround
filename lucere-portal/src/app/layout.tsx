@@ -45,6 +45,7 @@ export default function RootLayout({
             <NavLink href="/reporting" label="Reporting & Insights" />
             <NavLink href="/planning" label="Planning & Forecasting" />
             <NavLink href="/campaigns" label="Campaigns" />
+            <NavLink href="/map" label="Network Map" />
           </aside>
 
           <main className="p-6">
