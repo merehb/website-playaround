@@ -26,29 +26,43 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white text-gray-900`}>
-        <div className="grid grid-cols-[220px_1fr] grid-rows-[56px_1fr] min-h-screen">
-          <header className="col-span-2 h-14 border-b border-gray-200 flex items-center justify-between px-4">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen text-[var(--foreground)]`}>
+        <div className="grid grid-cols-[240px_1fr] grid-rows-[64px_1fr] min-h-screen">
+          <header className="col-span-2 h-16 glass flex items-center justify-between px-5">
             <div className="flex items-center gap-3">
-              <Image src="/next.svg" alt="Lucere" width={24} height={24} className="dark:invert" />
+              <div className="w-8 h-8 rounded-xl" style={{background:"linear-gradient(135deg, var(--accent), var(--accent-2))"}} />
               <span className="font-semibold">Lucere Digital Media</span>
             </div>
-            <nav className="text-sm">
+            <nav className="text-sm flex items-center gap-4">
               <a href="https://github.com/merehb/website-playaround" className="hover:underline" target="_blank" rel="noreferrer">GitHub</a>
+              <button className="btn btn-accent">New Report</button>
             </nav>
           </header>
 
-          <aside className="row-span-1 row-start-2 border-r border-gray-200 p-3 space-y-1 bg-gray-50">
-            <div className="text-xs font-semibold text-gray-600 px-2 py-1">Menu</div>
-            <Link href="/" className="block px-2 py-2 rounded hover:bg-gray-100">Overview</Link>
-            <Link href="/reporting" className="block px-2 py-2 rounded hover:bg-gray-100">Reporting & Insights</Link>
-            <Link href="/planning" className="block px-2 py-2 rounded hover:bg-gray-100">Planning & Forecasting</Link>
-            <Link href="/campaigns" className="block px-2 py-2 rounded hover:bg-gray-100">Campaigns</Link>
+          <aside className="row-span-1 row-start-2 glass p-4 space-y-1">
+            <div className="text-xs font-semibold text-gray-400 px-2 py-1">Menu</div>
+            <NavLink href="/" label="Overview" />
+            <NavLink href="/reporting" label="Reporting & Insights" />
+            <NavLink href="/planning" label="Planning & Forecasting" />
+            <NavLink href="/campaigns" label="Campaigns" />
           </aside>
 
-          <main className="p-6">{children}</main>
+          <main className="p-6">
+            <div className="grid gap-6">{children}</div>
+          </main>
         </div>
       </body>
     </html>
+  );
+}
+
+function NavLink({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="block px-3 py-2 rounded-xl hover:bg-white/5 transition-colors"
+    >
+      {label}
+    </Link>
   );
 }

@@ -11,10 +11,10 @@ export function FilterBar({ onApply }: Props) {
   const [dateRange, setDateRange] = useState("Last 4 weeks");
 
   return (
-    <div className="border rounded-md p-3 bg-white flex flex-col md:flex-row gap-3 items-start md:items-center">
+    <div className="glass rounded-xl p-3 flex flex-col md:flex-row gap-3 items-start md:items-center">
       <div className="flex items-center gap-2">
         <label className="text-xs text-gray-500 w-16">Market</label>
-        <select className="border rounded p-1 text-sm" value={market} onChange={(e) => setMarket(e.target.value)}>
+        <select className="bg-transparent border border-white/10 rounded p-1 text-sm" value={market} onChange={(e) => setMarket(e.target.value)}>
           <option>United States</option>
           <option>Philadelphia, PA</option>
           <option>New York, NY</option>
@@ -23,7 +23,7 @@ export function FilterBar({ onApply }: Props) {
       </div>
       <div className="flex items-center gap-2">
         <label className="text-xs text-gray-500 w-16">Dates</label>
-        <select className="border rounded p-1 text-sm" value={dateRange} onChange={(e) => setDateRange(e.target.value)}>
+        <select className="bg-transparent border border-white/10 rounded p-1 text-sm" value={dateRange} onChange={(e) => setDateRange(e.target.value)}>
           <option>Last 4 weeks</option>
           <option>Last 12 weeks</option>
           <option>QTD</option>
@@ -32,13 +32,13 @@ export function FilterBar({ onApply }: Props) {
       </div>
       <div className="md:ml-auto flex gap-2">
         <button
-          className="text-sm px-3 py-1.5 border rounded-md hover:bg-gray-50"
+          className="text-sm px-3 py-1.5 btn btn-accent"
           onClick={() => onApply?.({ market, dateRange })}
         >
           Apply
         </button>
         <button
-          className="text-sm px-3 py-1.5 border rounded-md hover:bg-gray-50"
+          className="text-sm px-3 py-1.5 btn hover:bg-white/5"
           onClick={() => {
             setMarket("United States");
             setDateRange("Last 4 weeks");
