@@ -16,7 +16,11 @@ export async function GET(req: Request) {
   const lmap = new Map<string, any>();
   for (const l of locations || []) lmap.set(l.id, l);
 
-  const { data: metrics } = await supabaseAdmin.from('metrics').select('campaign_id,location_id,impressions');
+  const campaignIds = (campaigns || []).map((c: any) => c.id);
+  const { data: metrics } = await supabaseAdmin
+    .from('metrics')
+    .select('campaign_id,location_id,impressions')
+    .in('campaign_id', campaignIds);
 
   const rows: any[] = [];
   for (const m of metrics || []) {
