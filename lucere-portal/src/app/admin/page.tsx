@@ -10,6 +10,7 @@ export default function AdminPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [uploadMsg, setUploadMsg] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>("");
+  const [replace, setReplace] = useState(false);
 
   async function login(e: React.FormEvent) {
     e.preventDefault();
@@ -56,6 +57,7 @@ export default function AdminPage() {
             setUploadMsg("Uploading…");
             const fd = new FormData();
             fd.set("file", file);
+            if (replace) fd.set("replace", "true");
             try {
               const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
               const data = await res.json().catch(() => ({}));
@@ -72,6 +74,10 @@ export default function AdminPage() {
               <span className="text-xs text-gray-400 truncate max-w-[220px]">{fileName || "No file selected"}</span>
               <button className="btn btn-accent w-max ml-auto">Upload</button>
             </div>
+            <label className="flex items-center gap-2 text-xs text-gray-400">
+              <input type="checkbox" checked={replace} onChange={(e) => setReplace(e.target.checked)} />
+              Replace existing data for brand(s) in file
+            </label>
             {uploadMsg && <div className="text-sm text-gray-300">{uploadMsg}</div>}
           </form>
         </div>

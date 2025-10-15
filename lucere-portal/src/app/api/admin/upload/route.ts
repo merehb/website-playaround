@@ -10,11 +10,13 @@ export async function POST(req: Request) {
   // Accept either raw text/csv body or multipart form-data with a file
   const ctype = req.headers.get("content-type") || "";
   let text = "";
+  let replace = false;
   if (ctype.includes("multipart/form-data")) {
     const form = await req.formData();
     const file = form.get("file") as File | null;
     if (!file) return NextResponse.json({ message: "No file provided" }, { status: 400 });
     text = await file.text();
+    replace = String(form.get('replace') || '').toLowerCase() === 'true';
   } else {
     text = await req.text();
   }
@@ -54,6 +56,12 @@ export async function POST(req: Request) {
         if (!existing?.id) await supabaseAdmin.from("access_codes").insert({ customer_id: cust.id, code: access_code, active: true });
       }
       // ensure campaign
+      if (replace && campaign_name) {
+        // delete existing metrics for this campaign_name under this customer
+        const { data: cids } = await supabaseAdmin.from('campaigns').select('id').eq('customer_id', cust.id).eq('name', campaign_name);
+        const ids = (cids || []).map((c: any) => c.id);
+        if (ids.length) await supabaseAdmin.from('metrics').delete().in('campaign_id', ids);
+      }
       let { data: camp } = await supabaseAdmin.from("campaigns").select("id").eq("customer_id", cust.id).eq("name", campaign_name).maybeSingle();
       if (!camp?.id && campaign_name) {
         const ins = await supabaseAdmin.from("campaigns").insert({ customer_id: cust.id, name: campaign_name, start_date, end_date }).select("id").single();
