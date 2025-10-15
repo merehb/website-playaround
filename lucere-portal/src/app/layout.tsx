@@ -43,6 +43,7 @@ export default function RootLayout({
             <Link href="/" className="block px-2 py-2 rounded hover:bg-gray-100">Overview</Link>
             <Link href="/reporting" className="block px-2 py-2 rounded hover:bg-gray-100">Reporting & Insights</Link>
             <Link href="/planning" className="block px-2 py-2 rounded hover:bg-gray-100">Planning & Forecasting</Link>
+            <Link href="/campaigns" className="block px-2 py-2 rounded hover:bg-gray-100">Campaigns</Link>
           </aside>
 
           <main className="p-6">{children}</main>
