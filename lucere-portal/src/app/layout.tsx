@@ -35,7 +35,9 @@ export default function RootLayout({
             </div>
             <nav className="text-sm flex items-center gap-4">
               <a href="https://github.com/merehb/website-playaround" className="hover:underline" target="_blank" rel="noreferrer">GitHub</a>
-              <button className="btn btn-accent">New Report</button>
+              <form action="/api/logout" method="post">
+                <button className="btn btn-accent" formAction="/api/logout">Logout</button>
+              </form>
             </nav>
           </header>
 

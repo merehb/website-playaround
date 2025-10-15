@@ -6,8 +6,11 @@ export function Greeting() {
   const [name, setName] = useState<string | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem("ldm_customer_name");
-    if (stored) setName(stored);
+    // Prefer cookie set by /api/login, fallback to localStorage
+    const match = document.cookie.match(/(?:^|; )ldm_customer_name=([^;]+)/);
+    const fromCookie = match ? decodeURIComponent(match[1]) : null;
+    const fromLocal = localStorage.getItem("ldm_customer_name");
+    setName(fromCookie || fromLocal);
   }, []);
 
   if (!name) return null;
