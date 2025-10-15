@@ -7,11 +7,71 @@ export async function POST(req: Request) {
   if (!/ldm_admin=1/.test(cookie)) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
-  const text = await req.text();
+  // Accept either raw text/csv body or multipart form-data with a file
+  const ctype = req.headers.get("content-type") || "";
+  let text = "";
+  if (ctype.includes("multipart/form-data")) {
+    const form = await req.formData();
+    const file = form.get("file") as File | null;
+    if (!file) return NextResponse.json({ message: "No file provided" }, { status: 400 });
+    text = await file.text();
+  } else {
+    text = await req.text();
+  }
   const [headerLine, ...lines] = text.trim().split(/\r?\n/);
   const headers = headerLine.split(",").map((h) => h.trim().toLowerCase());
 
   function cells(line: string) { return line.split(",").map((c) => c.trim()); }
+
+  if (headers.includes("username") || headers.includes("access_code") || headers.includes("password")) {
+    // master.csv: customer,username,access_code(or password),location_name,city,state,venue_type,campaign_name,start_date,end_date,date,impressions
+    const idx = (name: string) => headers.indexOf(name);
+    const rows = lines.map((l) => cells(l));
+    for (const row of rows) {
+      const customer = row[idx("customer")] || row[idx("brand")] || "";
+      const username = row[idx("username")] || customer;
+      const access_code = row[idx("access_code")] || row[idx("password")] || "";
+      const location_name = row[idx("location_name")] || "";
+      const city = row[idx("city")] || "";
+      const state = row[idx("state")] || "";
+      const venue_type = row[idx("venue_type")] || row[idx("type")] || "";
+      const campaign_name = row[idx("campaign_name")] || "";
+      const start_date = row[idx("start_date")] || null;
+      const end_date = row[idx("end_date")] || null;
+      const date = row[idx("date")] || null;
+      const impressions = Number(row[idx("impressions")] || 0);
+
+      if (!customer) continue;
+      // ensure customer
+      let { data: cust } = await supabaseAdmin.from("customers").select("id").eq("name", customer).maybeSingle();
+      if (!cust?.id) {
+        const ins = await supabaseAdmin.from("customers").insert({ name: customer }).select("id").single();
+        if (ins.error) continue; else cust = { id: ins.data.id } as any;
+      }
+      // ensure access code
+      if (access_code) {
+        const { data: existing } = await supabaseAdmin.from("access_codes").select("id").eq("customer_id", cust.id).eq("code", access_code).maybeSingle();
+        if (!existing?.id) await supabaseAdmin.from("access_codes").insert({ customer_id: cust.id, code: access_code, active: true });
+      }
+      // ensure campaign
+      let { data: camp } = await supabaseAdmin.from("campaigns").select("id").eq("customer_id", cust.id).eq("name", campaign_name).maybeSingle();
+      if (!camp?.id && campaign_name) {
+        const ins = await supabaseAdmin.from("campaigns").insert({ customer_id: cust.id, name: campaign_name, start_date, end_date }).select("id").single();
+        if (!ins.error) camp = { id: ins.data.id } as any;
+      }
+      // ensure location
+      let { data: loc } = await supabaseAdmin.from("locations").select("id").eq("customer_id", cust.id).eq("name", location_name).maybeSingle();
+      if (!loc?.id && location_name) {
+        const ins = await supabaseAdmin.from("locations").insert({ customer_id: cust.id, name: location_name, city: city && state ? `${city}, ${state}` : city || state, type: venue_type }).select("id").single();
+        if (!ins.error) loc = { id: ins.data.id } as any;
+      }
+      // metric
+      if (date && impressions && camp?.id) {
+        await supabaseAdmin.from("metrics").insert({ campaign_id: camp.id, location_id: loc?.id || null, date, impressions });
+      }
+    }
+    return NextResponse.json({ ok: true, mode: "master" });
+  }
 
   if (headers.includes("campaign_name") && headers.includes("start_date")) {
     // campaigns.csv

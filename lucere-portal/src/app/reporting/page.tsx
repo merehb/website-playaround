@@ -1,32 +1,43 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { KpiCard } from "@/components/KpiCard";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { FilterBar } from "@/components/FilterBar";
 import { MiniBars, MiniPie, PieDatum } from "@/components/Charts";
 
 export default function ReportingPage() {
-  const kpis = useMemo(
-    () => [
-      { label: "Impressions", value: 6950094114 },
-      { label: "Reach", value: 1245000000 },
-      { label: "Visits", value: 34500000 },
-      { label: "Conversions", value: 582000 },
-    ],
-    []
-  );
+  const [loading, setLoading] = useState(true);
+  const [impressions, setImpressions] = useState(0);
+  const [reach, setReach] = useState(0);
+  const [visits, setVisits] = useState(0);
+  const [conversions, setConversions] = useState(0);
+  const [weeklySeries, setWeeklySeries] = useState<number[]>([]);
+  const [labels, setLabels] = useState<string[]>([]);
+  const [categories, setCategories] = useState<PieDatum[]>([]);
+  const [range, setRange] = useState<"4w" | "12w" | "qtd" | "ytd">("4w");
 
-  const categories: PieDatum[] = useMemo(
-    () => [
-      { label: "Grocery", value: 49.62, color: "#6366F1" },
-      { label: "Convenience", value: 32.38, color: "#22C55E" },
-      { label: "Beer Distributors", value: 8.33, color: "#F59E0B" },
-      { label: "Casinos", value: 7.97, color: "#10B981" },
-      { label: "Other", value: 1.70, color: "#EF4444" },
-    ],
-    []
-  );
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch(`/api/brand/overview?range=${range}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        setImpressions(Number(data.impressionsInRange || 0));
+        setReach(Number(data.reachInRange || 0));
+        setVisits(Number(data.visitsInRange || 0));
+        setConversions(Number(data.conversionsInRange || 0));
+        const ws = (data.weeklySeries || []) as { weekStart: string; value: number }[];
+        setWeeklySeries(ws.map((p) => p.value));
+        setLabels(ws.map((p) => new Date(p.weekStart).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }))); 
+        const vb = data.venueBreakdown || {};
+        const colorMap: Record<string,string> = { Grocery: "#6366F1", Convenience: "#22C55E", "Beer Distributors": "#F59E0B", Casinos: "#10B981", Other: "#EF4444" };
+        setCategories(Object.keys(vb).map((k) => ({ label: k, value: vb[k], color: colorMap[k] || "#8884d8" })));
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [range]);
 
   return (
     <div className="space-y-6">
@@ -35,27 +46,23 @@ export default function ReportingPage() {
         <p className="text-sm text-gray-600">Lucere network performance (mock data)</p>
       </div>
 
-      <FilterBar />
+      <FilterBar controlledRange={range} onRangeChange={(v) => setRange(v)} />
 
       <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {kpis.map((k, i) => (
-          <KpiCard
-            key={k.label}
-            label={k.label}
-            value={<AnimatedNumber value={k.value} />}
-            sparklineValues={[60 + i * 2, 62, 61, 64, 65, 63, 66, 68, 67, 70]}
-          />
-        ))}
+        <KpiCard label="Impressions" value={<AnimatedNumber value={impressions} />} sparklineValues={weeklySeries.slice(-10)} />
+        <KpiCard label="Reach" value={<AnimatedNumber value={reach} />} />
+        <KpiCard label="Visits" value={<AnimatedNumber value={visits} />} />
+        <KpiCard label="Conversions" value={<AnimatedNumber value={conversions} />} />
       </section>
 
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="card p-4">
           <h2 className="font-medium mb-3">Impressions by Venue Type</h2>
-          <MiniPie data={categories} />
+          <MiniPie data={categories.length ? categories : [{ label: "No data", value: 1, color: "#333" }]} />
         </div>
         <div className="card p-4">
           <h2 className="font-medium mb-3">Weekly Impressions (Last 12w)</h2>
-          <MiniBars values={[62, 64, 61, 66, 70, 68, 72, 74, 73, 78, 80, 83]} labels={["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]} />
+          <MiniBars values={weeklySeries.length ? weeklySeries : [0,0,0,0,0,0,0,0,0,0,0,0]} labels={labels} />
         </div>
       </section>
     </div>

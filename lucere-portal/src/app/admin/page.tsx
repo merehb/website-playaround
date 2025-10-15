@@ -8,6 +8,8 @@ export default function AdminPage() {
   const [brand, setBrand] = useState("");
   const [code, setCode] = useState("");
   const [message, setMessage] = useState<string | null>(null);
+  const [uploadMsg, setUploadMsg] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string>("");
 
   async function login(e: React.FormEvent) {
     e.preventDefault();
@@ -44,10 +46,33 @@ export default function AdminPage() {
             {message && <div className="text-sm text-gray-300">{message}</div>}
           </form>
 
-          <form className="card p-4 space-y-3" onSubmit={async (e) => { e.preventDefault(); const form = e.currentTarget as HTMLFormElement; const file = (form.elements.namedItem("file") as HTMLInputElement)?.files?.[0]; if (!file) return; const text = await file.text(); const res = await fetch("/api/admin/upload", { method: "POST", headers: { "Content-Type": "text/csv" }, body: text }); if (res.ok) setMessage("Uploaded"); else setMessage("Upload error"); }}>
+          <form className="card p-4 space-y-3" onSubmit={async (e) => {
+            e.preventDefault();
+            setUploadMsg(null);
+            const form = e.currentTarget as HTMLFormElement;
+            const file = (form.elements.namedItem("file") as HTMLInputElement)?.files?.[0];
+            if (!file) { setUploadMsg("Please choose a CSV file"); return; }
+            if (!file.name.toLowerCase().endsWith('.csv')) { setUploadMsg("File must be .csv (use 'Save As → CSV UTF-8')"); return; }
+            setUploadMsg("Uploading…");
+            const fd = new FormData();
+            fd.set("file", file);
+            try {
+              const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+              const data = await res.json().catch(() => ({}));
+              if (res.ok) { setUploadMsg(data?.mode ? `Upload successful (${data.mode})` : "Upload successful"); setFileName(""); (form.elements.namedItem("file") as HTMLInputElement).value = ""; }
+              else setUploadMsg(data?.message || `Upload error (${res.status})`);
+            } catch (err) {
+              setUploadMsg("Network error during upload");
+            }
+          }}>
             <div className="font-medium">Upload CSV (campaigns.csv / locations.csv / metrics.csv)</div>
-            <input type="file" name="file" accept=".csv" className="text-sm" />
-            <button className="btn btn-accent w-max">Upload</button>
+            <input id="csvFile" type="file" name="file" accept=".csv,text/csv" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; setFileName(f ? f.name : ""); }} />
+            <div className="flex items-center gap-3">
+              <label htmlFor="csvFile" className="btn btn-accent cursor-pointer">Choose CSV</label>
+              <span className="text-xs text-gray-400 truncate max-w-[220px]">{fileName || "No file selected"}</span>
+              <button className="btn btn-accent w-max ml-auto">Upload</button>
+            </div>
+            {uploadMsg && <div className="text-sm text-gray-300">{uploadMsg}</div>}
           </form>
         </div>
       )}

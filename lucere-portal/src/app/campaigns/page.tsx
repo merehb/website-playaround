@@ -3,13 +3,17 @@
 import { useState } from "react";
 
 export default function CampaignsPage() {
-  const rows = [
-    { name: "Betterment Q4 Retail", status: "Live", markets: "PA, NJ, NY", impressions: 128_000_000 },
-    { name: "Coke Holiday", status: "Scheduled", markets: "US", impressions: 640_000_000 },
-    { name: "FanDuel Metro", status: "Paused", markets: "NYC", impressions: 42_000_000 },
-  ];
-
   const [open, setOpen] = useState(false);
+  const [rows, setRows] = useState<any[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const res = await fetch('/api/brand/campaigns');
+      if (!res.ok) return;
+      const data = await res.json();
+      setRows(data.rows || []);
+    })();
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -22,19 +26,21 @@ export default function CampaignsPage() {
         <table className="w-full text-sm">
           <thead className="text-gray-400">
             <tr>
-              <th className="text-left px-4 py-2">Name</th>
-              <th className="text-left px-4 py-2">Status</th>
-              <th className="text-left px-4 py-2">Markets</th>
+              <th className="text-left px-4 py-2">Campaign</th>
+              <th className="text-left px-4 py-2">Location</th>
+              <th className="text-left px-4 py-2">City/State</th>
+              <th className="text-left px-4 py-2">Dates</th>
               <th className="text-right px-4 py-2">Impressions</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.name} className="border-t border-white/5">
-                <td className="px-4 py-2 font-medium">{r.name}</td>
-                <td className="px-4 py-2">{r.status}</td>
-                <td className="px-4 py-2">{r.markets}</td>
-                <td className="px-4 py-2 text-right">{r.impressions.toLocaleString()}</td>
+              <tr key={`${r.campaign_name}-${r.location_name}-${r.city}`} className="border-t border-white/5">
+                <td className="px-4 py-2 font-medium">{r.campaign_name}</td>
+                <td className="px-4 py-2">{r.location_name}</td>
+                <td className="px-4 py-2">{r.city}</td>
+                <td className="px-4 py-2">{r.start_date} → {r.end_date}</td>
+                <td className="px-4 py-2 text-right">{Number(r.impressions || 0).toLocaleString()}</td>
               </tr>
             ))}
           </tbody>
