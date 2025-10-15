@@ -19,9 +19,9 @@ export default function ReportingPage() {
 
   const categories: PieDatum[] = useMemo(
     () => [
-      { label: "Grocery", value: 49.62, color: "#4F46E5" },
+      { label: "Grocery", value: 49.62, color: "#6366F1" },
       { label: "Convenience", value: 32.38, color: "#22C55E" },
-      { label: "Beer/Distributors", value: 8.33, color: "#F59E0B" },
+      { label: "Beer Distributors", value: 8.33, color: "#F59E0B" },
       { label: "Casinos", value: 7.97, color: "#10B981" },
       { label: "Other", value: 1.70, color: "#EF4444" },
     ],
@@ -55,7 +55,7 @@ export default function ReportingPage() {
         </div>
         <div className="card p-4">
           <h2 className="font-medium mb-3">Weekly Impressions (Last 12w)</h2>
-          <MiniBars values={[62, 64, 61, 66, 70, 68, 72, 74, 73, 78, 80, 83]} />
+          <MiniBars values={[62, 64, 61, 66, 70, 68, 72, 74, 73, 78, 80, 83]} labels={["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]} />
         </div>
       </section>
     </div>
