@@ -1,6 +1,6 @@
-import dynamic from "next/dynamic";
+"use client";
 
-const MapWidgetClient = dynamic(() => import("./MapWidgetClient"), { ssr: false });
+import MapWidgetClient from "./MapWidgetClient";
 
 type CampaignPoint = { name: string; coords: [number, number]; value?: number };
 

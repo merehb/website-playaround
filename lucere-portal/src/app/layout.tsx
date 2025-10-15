@@ -43,7 +43,6 @@ export default function RootLayout({
             <div className="text-xs font-semibold text-gray-400 px-2 py-1">Menu</div>
             <NavLink href="/" label="Overview" />
             <NavLink href="/reporting" label="Reporting & Insights" />
-            <NavLink href="/planning" label="Planning & Forecasting" />
             <NavLink href="/campaigns" label="Campaigns" />
             <NavLink href="/map" label="Network Map" />
           </aside>
