@@ -31,9 +31,9 @@ export function MiniPie({ data }: { data: PieDatum[] }) {
 export function MiniBars({ values }: { values: number[] }) {
   const max = Math.max(...values);
   return (
-    <div className="grid grid-cols-12 items-end gap-2 h-48">
+    <div className="grid grid-cols-12 items-end gap-2 h-48 rounded-md overflow-hidden">
       {values.map((v, i) => (
-        <div key={i} className="bg-[#0EA5E9]/80 rounded-sm" style={{ height: `${(v / max) * 100}%` }} />
+        <div key={i} className="rounded-sm" style={{ background: "linear-gradient(180deg, var(--accent), var(--accent-2))", height: `${(v / max) * 100}%` }} />
       ))}
     </div>
   );

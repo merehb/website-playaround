@@ -49,11 +49,11 @@ export default function ReportingPage() {
       </section>
 
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="border rounded-md p-4 bg-white">
+        <div className="card p-4">
           <h2 className="font-medium mb-3">Impressions by Venue Type</h2>
           <MiniPie data={categories} />
         </div>
-        <div className="border rounded-md p-4 bg-white">
+        <div className="card p-4">
           <h2 className="font-medium mb-3">Weekly Impressions (Last 12w)</h2>
           <MiniBars values={[62, 64, 61, 66, 70, 68, 72, 74, 73, 78, 80, 83]} />
         </div>
