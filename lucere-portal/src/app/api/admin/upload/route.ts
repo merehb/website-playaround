@@ -99,7 +99,15 @@ export async function POST(req: Request) {
       }
       // metric
       if (date && camp?.id) {
-        await supabaseAdmin.from("metrics").insert({ campaign_id: camp.id, location_id: loc?.id || null, date, impressions, reach, visits, conversions });
+        const ins = await supabaseAdmin
+          .from("metrics")
+          .insert({ campaign_id: camp.id, location_id: loc?.id || null, date, impressions, reach, visits, conversions });
+        if ((ins as any).error) {
+          // Fallback for schemas without reach/visits/conversions columns
+          await supabaseAdmin
+            .from("metrics")
+            .insert({ campaign_id: camp.id, location_id: loc?.id || null, date, impressions });
+        }
       }
     }
     return NextResponse.json({ ok: true, mode: "master" });
