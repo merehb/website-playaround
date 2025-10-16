@@ -1,8 +1,49 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { MapWidget } from "@/components/MapWidget";
 import { TopLocations } from "@/components/TopLocations";
 import { Greeting } from "@/components/Greeting";
 
 export default function Home() {
+  const [screens, setScreens] = useState(0);
+  const [impressions, setImpressions] = useState(0);
+  const [active, setActive] = useState(0);
+  const [top, setTop] = useState<{ store: string; city: string; impressions: number }[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [oRes, cRes] = await Promise.all([
+          fetch('/api/brand/overview?range=4w'),
+          fetch('/api/brand/campaigns')
+        ]);
+        if (oRes.ok) {
+          const o = await oRes.json();
+          setScreens(Number(o.screensLive || 0));
+          setImpressions(Number(o.impressionsInRange || 0));
+          setActive(Number(o.activeCampaigns || 0));
+        }
+        if (cRes.ok) {
+          const d = await cRes.json();
+          const rows = (d.rows || []) as any[];
+          const agg = new Map<string, number>();
+          const city = new Map<string, string>();
+          for (const r of rows) {
+            const key = r.location_name || '-';
+            agg.set(key, (agg.get(key) || 0) + Number(r.impressions || 0));
+            city.set(key, r.city || '-');
+          }
+          const list = Array.from(agg.entries())
+            .map(([store, impressions]) => ({ store, city: city.get(store) || '-', impressions }))
+            .sort((a,b) => b.impressions - a.impressions)
+            .slice(0,3);
+          setTop(list);
+        }
+      } catch {}
+    })();
+  }, []);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -14,15 +55,15 @@ export default function Home() {
       <div className="grid grid-cols-12 gap-4">
         <div className="card p-5 col-span-12 md:col-span-4 min-h-[120px] flex flex-col justify-between">
           <div className="text-sm text-gray-400">Screens Live</div>
-          <div className="text-3xl font-bold" style={{background:"linear-gradient(90deg, var(--accent), var(--accent-2))", WebkitBackgroundClip:"text", color:"transparent"}}>1,284</div>
+          <div className="text-3xl font-bold" style={{background:"linear-gradient(90deg, var(--accent), var(--accent-2))", WebkitBackgroundClip:"text", color:"transparent"}}>{screens.toLocaleString()}</div>
         </div>
         <div className="card p-5 col-span-12 md:col-span-4 min-h-[120px] flex flex-col justify-between">
           <div className="text-sm text-gray-400">Weekly Impressions</div>
-          <div className="text-3xl font-bold" style={{background:"linear-gradient(90deg, var(--accent), var(--accent-2))", WebkitBackgroundClip:"text", color:"transparent"}}>96.2M</div>
+          <div className="text-3xl font-bold" style={{background:"linear-gradient(90deg, var(--accent), var(--accent-2))", WebkitBackgroundClip:"text", color:"transparent"}}>{impressions.toLocaleString()}</div>
         </div>
         <div className="card p-5 col-span-12 md:col-span-4 min-h-[120px] flex flex-col justify-between">
           <div className="text-sm text-gray-400">Active Campaigns</div>
-          <div className="text-3xl font-bold" style={{background:"linear-gradient(90deg, var(--accent), var(--accent-2))", WebkitBackgroundClip:"text", color:"transparent"}}>43</div>
+          <div className="text-3xl font-bold" style={{background:"linear-gradient(90deg, var(--accent), var(--accent-2))", WebkitBackgroundClip:"text", color:"transparent"}}>{active.toLocaleString()}</div>
         </div>
       </div>
 
@@ -46,13 +87,7 @@ export default function Home() {
               { name: "Chicago", coords: [41.8781, -87.6298] },
             ]}
           />
-          <TopLocations
-            rows={[
-              { store: "ShopRite #112", city: "Philadelphia, PA", impressions: 3240000 },
-              { store: "7-Eleven #443", city: "New York, NY", impressions: 2790000 },
-              { store: "Total Wine #19", city: "Chicago, IL", impressions: 2210000 },
-            ]}
-          />
+          <TopLocations rows={top} />
         </div>
       </div>
     </div>
