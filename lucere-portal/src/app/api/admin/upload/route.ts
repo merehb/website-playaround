@@ -40,6 +40,11 @@ export async function POST(req: Request) {
     if (!isNaN(d.getTime())) return d.toISOString().slice(0,10);
     return null as any;
   };
+  const parseNum = (v: any) => {
+    if (v === null || v === undefined) return 0;
+    const n = Number(String(v).replace(/[,\s]/g, ""));
+    return isNaN(n) ? 0 : n;
+  };
 
   if (headers.includes("username") || headers.includes("access_code") || headers.includes("password")) {
     // master.csv: customer,username,access_code(or password),location_name,city,state,venue_type,campaign_name,start_date,end_date,date,impressions
@@ -57,10 +62,10 @@ export async function POST(req: Request) {
       const start_date = normDate(row[idx("start_date")] || null);
       const end_date = normDate(row[idx("end_date")] || null);
       const date = normDate(row[idx("date")] || null);
-      const impressions = Number(row[idx("impressions")] || 0);
-      const reach = Number(row[idx("reach")] || 0);
-      const visits = Number(row[idx("visits")] || 0);
-      const conversions = Number(row[idx("conversions")] || 0);
+      const impressions = parseNum(row[idx("impressions")]);
+      const reach = parseNum(row[idx("reach")]);
+      const visits = parseNum(row[idx("visits")]);
+      const conversions = parseNum(row[idx("conversions")]);
 
       if (!customer) continue;
       // ensure customer
