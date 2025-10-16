@@ -7,7 +7,7 @@ export default function MainContainer({ children }: { children: React.ReactNode 
   const isLogin = pathname?.startsWith('/login');
   return (
     <main className={"p-6 " + (isLogin ? "flex items-center justify-center" : "") }>
-      <div className={isLogin ? "w-full max-w-lg" : "grid gap-6"}>{children}</div>
+      <div className={isLogin ? "w-full max-w-2xl" : "grid gap-6"}>{children}</div>
     </main>
   );
 }
