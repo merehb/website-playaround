@@ -10,6 +10,7 @@ export default function Home() {
   const [impressions, setImpressions] = useState(0);
   const [active, setActive] = useState(0);
   const [top, setTop] = useState<{ store: string; city: string; impressions: number }[]>([]);
+  const [miniMapPoints, setMiniMapPoints] = useState<{ name: string; coords: [number, number]; value?: number }[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -39,6 +40,13 @@ export default function Home() {
             .sort((a,b) => b.impressions - a.impressions)
             .slice(0,3);
           setTop(list);
+        }
+        // fetch locations for mini map
+        const lRes = await fetch('/api/brand/locations');
+        if (lRes.ok) {
+          const l = await lRes.json();
+          const pts = (l.points || []).map((p:any) => ({ name: p.name, coords: [p.lat, p.lng] as [number, number], value: p.impressions }));
+          setMiniMapPoints(pts);
         }
       } catch {}
     })();
@@ -80,13 +88,7 @@ export default function Home() {
           </div>
         </div>
         <div className="col-span-12 lg:col-span-4 space-y-4">
-          <MapWidget
-            points={[
-              { name: "Philadelphia", coords: [39.9526, -75.1652] },
-              { name: "New York", coords: [40.7128, -74.006] },
-              { name: "Chicago", coords: [41.8781, -87.6298] },
-            ]}
-          />
+          <MapWidget points={miniMapPoints} />
           <TopLocations rows={top} />
         </div>
       </div>
