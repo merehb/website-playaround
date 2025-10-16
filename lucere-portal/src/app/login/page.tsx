@@ -43,7 +43,7 @@ export default function LoginPage() {
           <label className="block text-xs text-gray-400 mb-1">Brand Name</label>
           <input
             className="w-full bg-transparent border border-white/10 rounded px-3 py-3 text-base"
-            placeholder="e.g., Holla"
+            placeholder="Your brand"
             value={brand}
             onChange={(e) => setBrand(e.target.value)}
             required
