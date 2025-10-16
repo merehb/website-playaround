@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import Sidebar from "@/components/Sidebar";
-import MainContainer from "@/components/MainContainer";
+import LayoutGrid from "@/components/LayoutGrid";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -30,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen text-[var(--foreground)]`}>
-        <div className="grid grid-cols-[240px_1fr] grid-rows-[64px_1fr] min-h-screen">
+        <div className="min-h-screen">
           <header className="col-span-2 h-16 glass flex items-center justify-between px-5">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-xl" style={{background:"linear-gradient(135deg, var(--accent), var(--accent-2))"}} />
@@ -43,8 +42,7 @@ export default function RootLayout({
               </form>
             </nav>
           </header>
-          <Sidebar />
-          <MainContainer>{children}</MainContainer>
+          <LayoutGrid>{children}</LayoutGrid>
         </div>
       </body>
     </html>
