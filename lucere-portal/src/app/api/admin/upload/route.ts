@@ -94,7 +94,18 @@ export async function POST(req: Request) {
       // ensure location
       let { data: loc } = await supabaseAdmin.from("locations").select("id").eq("customer_id", cust.id).eq("name", location_name).maybeSingle();
       if (!loc?.id && location_name) {
-        const ins = await supabaseAdmin.from("locations").insert({ customer_id: cust.id, name: location_name, city: city && state ? `${city}, ${state}` : city || state, type: venue_type }).select("id").single();
+        // Geocode city/state via Nominatim (1 req/sec)
+        let lat: number | null = null, lon: number | null = null;
+        const q = [city, state, 'USA'].filter(Boolean).join(', ');
+        if (q) {
+          try {
+            await new Promise(r => setTimeout(r, 1000)); // politeness
+            const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`, { headers: { 'User-Agent': 'lucere-portal/1.0' } });
+            const arr = await resp.json();
+            if (Array.isArray(arr) && arr[0]) { lat = Number(arr[0].lat); lon = Number(arr[0].lon); }
+          } catch {}
+        }
+        const ins = await supabaseAdmin.from("locations").insert({ customer_id: cust.id, name: location_name, city: city && state ? `${city}, ${state}` : city || state, type: venue_type, latitude: lat, longitude: lon }).select("id").single();
         if (!ins.error) loc = { id: ins.data.id } as any;
       }
       // metric

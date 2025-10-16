@@ -13,14 +13,18 @@ const icon = new L.Icon({
   iconAnchor: [12, 41],
 });
 
-const locations = [
-  { name: "Grocery - Philadelphia", coords: [39.9526, -75.1652] as [number, number] },
-  { name: "Convenience - New York", coords: [40.7128, -74.006] as [number, number] },
-  { name: "Distributor - Chicago", coords: [41.8781, -87.6298] as [number, number] },
-  { name: "Casino - Las Vegas", coords: [36.1699, -115.1398] as [number, number] },
-];
-
 export default function MapPage() {
+  const [points, setPoints] = React.useState<{ name: string; lat: number; lng: number; city: string; impressions: number }[]>([]);
+
+  React.useEffect(() => {
+    (async () => {
+      const res = await fetch('/api/brand/locations');
+      if (!res.ok) return;
+      const data = await res.json();
+      setPoints(data.points || []);
+    })();
+  }, []);
+
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-semibold">Network Map</h1>
@@ -30,9 +34,15 @@ export default function MapPage() {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          {locations.map((loc) => (
-            <Marker position={loc.coords} key={loc.name} icon={icon}>
-              <Popup>{loc.name}</Popup>
+          {points.map((p) => (
+            <Marker position={[p.lat, p.lng]} key={`${p.name}-${p.lat}-${p.lng}`} icon={icon}>
+              <Popup>
+                <div className="text-sm">
+                  <div className="font-medium">{p.name}</div>
+                  <div className="text-gray-400">{p.city}</div>
+                  <div>Impressions (30d): {p.impressions.toLocaleString()}</div>
+                </div>
+              </Popup>
             </Marker>
           ))}
         </MapContainer>
