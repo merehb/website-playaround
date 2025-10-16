@@ -14,7 +14,7 @@ export default function Sidebar() {
   const isLogin = pathname?.startsWith('/login');
   if (isLogin) return null;
   return (
-    <aside className="row-span-1 row-start-2 glass p-4 space-y-1">
+    <aside className="glass p-4 space-y-1 col-start-1">
       <div className="text-xs font-semibold text-gray-400 px-2 py-1">Menu</div>
       <NavLink href="/" label="Overview" />
       <NavLink href="/reporting" label="Reporting & Insights" />
