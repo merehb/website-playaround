@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap, CircleMarker } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
@@ -47,7 +47,7 @@ export default function MapPage() {
           />
           <FitToPoints pts={points} />
           {points.map((p) => (
-            <Marker position={[p.lat, p.lng]} key={`${p.name}-${p.lat}-${p.lng}`} icon={icon}>
+            <CircleMarker key={`${p.name}-${p.lat}-${p.lng}`} center={[p.lat, p.lng]} radius={9} pathOptions={{ color: "#f59e0b", fillColor: "#ff7a00", fillOpacity: 0.85 }}>
               <Popup>
                 <div className="text-sm">
                   <div className="font-medium">{p.name}</div>
@@ -55,7 +55,7 @@ export default function MapPage() {
                   <div>Impressions (30d): {p.impressions.toLocaleString()}</div>
                 </div>
               </Popup>
-            </Marker>
+            </CircleMarker>
           ))}
         </MapContainer>
       </div>

@@ -39,16 +39,16 @@ export default function MapWidgetClient({ points }: { points: CampaignPoint[] })
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <FitToPoints pts={points} />
-        {points.map((p) => (
-          <CircleMarker
-            key={p.name}
-            center={p.coords}
-            radius={8}
-            pathOptions={{ color: "#f59e0b", fillColor: "#ff7a00", fillOpacity: 0.8 }}
-          >
-            <Popup>{p.name}</Popup>
-          </CircleMarker>
-        ))}
+          {points.map((p) => (
+            <CircleMarker
+              key={p.name}
+              center={p.coords}
+              radius={8}
+              pathOptions={{ color: "#f59e0b", fillColor: "#ff7a00", fillOpacity: 0.85 }}
+            >
+              <Popup>{p.name}</Popup>
+            </CircleMarker>
+          ))}
       </MapContainer>
     </div>
   );
