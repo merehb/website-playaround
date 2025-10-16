@@ -11,6 +11,7 @@ export default function AdminPage() {
   const [uploadMsg, setUploadMsg] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>("");
   const [replace, setReplace] = useState(false);
+  const [geoMsg, setGeoMsg] = useState<string | null>(null);
 
   async function login(e: React.FormEvent) {
     e.preventDefault();
@@ -80,6 +81,16 @@ export default function AdminPage() {
             </label>
             {uploadMsg && <div className="text-sm text-gray-300">{uploadMsg}</div>}
           </form>
+
+          <div className="card p-4 space-y-3">
+            <div className="font-medium">Backfill Geocodes</div>
+            <div className="text-xs text-gray-400">Geocode existing locations for a brand (slow ~1/sec).</div>
+            <div className="flex items-center gap-2">
+              <input className="bg-transparent border border-white/10 rounded px-3 py-2 flex-1" placeholder="Brand name (e.g., Holla Spirits)" value={brand} onChange={(e)=>setBrand(e.target.value)} />
+              <button className="btn btn-accent" onClick={async (e) => { e.preventDefault(); setGeoMsg("Running…"); const res = await fetch(`/api/admin/geocode?brand=${encodeURIComponent(brand)}`, { method: 'POST' }); const data = await res.json().catch(()=>({})); if (res.ok) setGeoMsg(`Updated ${data.updated} locations`); else setGeoMsg(data?.message || 'Error'); }}>Run</button>
+            </div>
+            {geoMsg && <div className="text-sm text-gray-300">{geoMsg}</div>}
+          </div>
         </div>
       )}
     </div>
