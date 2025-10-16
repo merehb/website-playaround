@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
@@ -26,15 +26,26 @@ export default function MapPage() {
     })();
   }, []);
 
+  function FitToPoints({ pts }: { pts: { lat: number; lng: number }[] }) {
+    const map = useMap();
+    React.useEffect(() => {
+      if (!pts || pts.length === 0) return;
+      const bounds = L.latLngBounds(pts.map((p) => [p.lat, p.lng] as [number, number]));
+      map.fitBounds(bounds, { padding: [20, 20] });
+    }, [pts, map]);
+    return null;
+  }
+
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-semibold">Network Map</h1>
       <div className="card overflow-hidden">
-        <MapContainer center={[39.8283, -98.5795]} zoom={4} style={{ height: 480, width: "100%" }}>
+        <MapContainer center={[39.8283, -98.5795]} zoom={4} style={{ height: 480, width: "100%" }} scrollWheelZoom={true} zoomControl={true}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
+          <FitToPoints pts={points} />
           {points.map((p) => (
             <Marker position={[p.lat, p.lng]} key={`${p.name}-${p.lat}-${p.lng}`} icon={icon}>
               <Popup>
