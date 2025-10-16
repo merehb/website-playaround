@@ -19,9 +19,11 @@ export async function GET(req: Request) {
   if (!customer?.id) return NextResponse.json({ message: "Brand not found" }, { status: 404 });
   const customerId = customer.id as string;
 
-  // Screens
-  const { data: locCount } = await supabaseAdmin.from("locations").select("id", { count: "exact", head: true }).eq("customer_id", customerId);
-  const screensLive = (locCount as any)?.length === 0 ? 0 : (locCount as any) === null ? 0 : (locCount as any);
+  // Screens = number of distinct campaigns for this brand (as requested)
+  const { count: screensLive = 0 } = await supabaseAdmin
+    .from('campaigns')
+    .select('id', { count: 'exact', head: true })
+    .eq('customer_id', customerId);
 
   // Active campaigns (today)
   const { count: activeCampaigns = 0 } = await supabaseAdmin

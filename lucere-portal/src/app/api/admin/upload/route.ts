@@ -24,6 +24,22 @@ export async function POST(req: Request) {
   const headers = headerLine.split(",").map((h) => h.trim().toLowerCase());
 
   function cells(line: string) { return line.split(",").map((c) => c.trim()); }
+  const normDate = (s: any) => {
+    if (!s) return null as any;
+    const str = String(s).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+    const m = str.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})$/);
+    if (m) {
+      const mm = m[1].padStart(2,'0');
+      const dd = m[2].padStart(2,'0');
+      let yy = m[3];
+      if (yy.length === 2) yy = '20' + yy;
+      return `${yy}-${mm}-${dd}`;
+    }
+    const d = new Date(str);
+    if (!isNaN(d.getTime())) return d.toISOString().slice(0,10);
+    return null as any;
+  };
 
   if (headers.includes("username") || headers.includes("access_code") || headers.includes("password")) {
     // master.csv: customer,username,access_code(or password),location_name,city,state,venue_type,campaign_name,start_date,end_date,date,impressions
@@ -38,10 +54,13 @@ export async function POST(req: Request) {
       const state = row[idx("state")] || "";
       const venue_type = row[idx("venue_type")] || row[idx("type")] || "";
       const campaign_name = row[idx("campaign_name")] || "";
-      const start_date = row[idx("start_date")] || null;
-      const end_date = row[idx("end_date")] || null;
-      const date = row[idx("date")] || null;
+      const start_date = normDate(row[idx("start_date")] || null);
+      const end_date = normDate(row[idx("end_date")] || null);
+      const date = normDate(row[idx("date")] || null);
       const impressions = Number(row[idx("impressions")] || 0);
+      const reach = Number(row[idx("reach")] || 0);
+      const visits = Number(row[idx("visits")] || 0);
+      const conversions = Number(row[idx("conversions")] || 0);
 
       if (!customer) continue;
       // ensure customer
@@ -74,8 +93,8 @@ export async function POST(req: Request) {
         if (!ins.error) loc = { id: ins.data.id } as any;
       }
       // metric
-      if (date && impressions && camp?.id) {
-        await supabaseAdmin.from("metrics").insert({ campaign_id: camp.id, location_id: loc?.id || null, date, impressions });
+      if (date && camp?.id) {
+        await supabaseAdmin.from("metrics").insert({ campaign_id: camp.id, location_id: loc?.id || null, date, impressions, reach, visits, conversions });
       }
     }
     return NextResponse.json({ ok: true, mode: "master" });
