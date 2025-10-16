@@ -35,6 +35,19 @@ export async function GET(req: Request) {
       impressions: m.impressions || 0,
     });
   }
+  // If there are campaigns but no metrics, still show campaigns
+  if ((metrics || []).length === 0) {
+    for (const c of campaigns || []) {
+      rows.push({
+        campaign_name: c.name,
+        start_date: c.start_date,
+        end_date: c.end_date,
+        location_name: '-',
+        city: '-',
+        impressions: 0,
+      });
+    }
+  }
   return NextResponse.json({ rows });
 }
 

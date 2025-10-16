@@ -116,6 +116,10 @@ export async function GET(req: Request) {
       const label = locType.get(r.location_id) || "Other";
       venueBreakdown[label] = (venueBreakdown[label] || 0) + Number(r.impressions || 0);
     }
+    // Fallback when there are campaigns but no metrics
+    if ((recent || []).length === 0) {
+      venueBreakdown = { Other: 0 };
+    }
   }
 
   return NextResponse.json({
