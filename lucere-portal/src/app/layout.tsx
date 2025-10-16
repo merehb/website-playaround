@@ -24,10 +24,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const isLogin = typeof window === 'undefined' ? false : window?.location?.pathname?.startsWith('/login');
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen text-[var(--foreground)]`}>
-        <div className="grid grid-cols-[240px_1fr] grid-rows-[64px_1fr] min-h-screen">
+        <div className={"grid min-h-screen " + (isLogin ? "grid-cols-1 grid-rows-[64px_1fr]" : "grid-cols-[240px_1fr] grid-rows-[64px_1fr]")}>
           <header className="col-span-2 h-16 glass flex items-center justify-between px-5">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-xl" style={{background:"linear-gradient(135deg, var(--accent), var(--accent-2))"}} />
@@ -41,6 +42,7 @@ export default function RootLayout({
             </nav>
           </header>
 
+          {!isLogin && (
           <aside className="row-span-1 row-start-2 glass p-4 space-y-1">
             <div className="text-xs font-semibold text-gray-400 px-2 py-1">Menu</div>
             <NavLink href="/" label="Overview" />
@@ -48,9 +50,10 @@ export default function RootLayout({
             <NavLink href="/campaigns" label="Campaigns" />
             <NavLink href="/map" label="Network Map" />
           </aside>
+          )}
 
-          <main className="p-6">
-            <div className="grid gap-6">{children}</div>
+          <main className={"p-6 " + (isLogin ? "flex items-center justify-center" : "") }>
+            <div className={isLogin ? "w-full max-w-md" : "grid gap-6"}>{children}</div>
           </main>
         </div>
       </body>
