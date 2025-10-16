@@ -35,8 +35,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-      <form onSubmit={onSubmit} className="card w-full max-w-2xl p-10 space-y-6">
+    <div className="min-h-screen grid place-items-center p-6">
+      <form onSubmit={onSubmit} className="card w-full max-w-4xl p-12 space-y-6">
         <div className="text-xl font-semibold">Sign in</div>
         <div className="text-sm text-gray-400">Enter your brand and access code.</div>
         <div>
