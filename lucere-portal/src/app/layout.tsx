@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import LayoutGrid from "@/components/LayoutGrid";
+import HeaderActions from "@/components/HeaderActions";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -30,17 +31,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen text-[var(--foreground)]`}>
         <div className="min-h-screen">
-          <header className="col-span-2 h-16 glass flex items-center justify-between px-5">
+          <header className="h-16 glass flex items-center justify-between px-5">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-xl" style={{background:"linear-gradient(135deg, var(--accent), var(--accent-2))"}} />
               <span className="font-semibold">Lucere Digital Media</span>
             </div>
-            <nav className="text-sm flex items-center gap-4">
-              <a href="https://github.com/merehb/website-playaround" className="hover:underline" target="_blank" rel="noreferrer">GitHub</a>
-              <form action="/api/logout" method="post">
-                <button className="btn btn-accent" formAction="/api/logout">Logout</button>
-              </form>
-            </nav>
+            <HeaderActions />
           </header>
           <LayoutGrid>{children}</LayoutGrid>
         </div>
